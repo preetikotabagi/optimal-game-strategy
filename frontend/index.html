@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimal Game Strategy Simulator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Optimal Game Strategy Simulator</h1>
+
+    <p>Enter coins separated by commas</p>
+
+    <input type="text" id="coinsInput" placeholder="8,15,3,7">
+
+    <button onclick="solveGame()">Solve Game</button>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+
+    async function solveGame() {
+
+        const input = document.getElementById("coinsInput").value.trim();
+
+        if (input === "") {
+
+            document.getElementById("result").innerHTML =
+                "Please enter coin values.";
+
+            return;
+        }
+
+        const coins = input.split(",").map(item => Number(item.trim()));
+
+        const invalidInput = coins.some(isNaN);
+
+        if (invalidInput) {
+
+            document.getElementById("result").innerHTML =
+                "Invalid input. Enter only numbers separated by commas.";
+
+            return;
+        }
+
+        const startTime = performance.now();
+
+        const response = await fetch("http://localhost:8081/game/solve", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                coins: coins
+            })
+        });
+
+        const data = await response.json();
+
+        const endTime = performance.now();
+
+        const executionTime = (endTime - startTime).toFixed(2);
+
+        document.getElementById("result").innerHTML = `
+            Coins: [${coins.join(", ")}] <br><br>
+            Optimal Score: ${data.optimalScore} <br><br>
+            Execution Time: ${executionTime} ms
+        `;
+    }
+
+</script>
+
+</body>
+</html>
